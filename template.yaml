@@ -8,7 +8,6 @@ Description: >
 Globals:
   Function:
     Timeout: 10
-
     Tracing: Active
     # You can add LoggingConfig parameters such as the Logformat, Log Group, and SystemLogLevel or ApplicationLogLevel. Learn more here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-loggingconfig.
     LoggingConfig:
@@ -29,6 +28,7 @@ Parameters:
     Default: dev
 
 Resources:
+  # S3
   # S3 bucket policy to allow Cloublock's CF distro to access the content bucket.
   ContentBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -64,6 +64,7 @@ Resources:
         - Key: project
           Value: !Ref ProjectName
 
+    # CDN
     # OAC to grant S3 access to the Distro
     ContentOAC:
       Type: AWS::CloudFront::OriginAccessControl
@@ -90,12 +91,38 @@ Resources:
           - Key: project
             Value: !Ref ProjectName
 
-
-  CourseTable:
-    Type: AWS::Serveless::SimpleTable
+  # Tables
+  SingleTable:
+    Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "${ProjectName}-course-table"
+      TableName: !Sub "${ProjectName}-single-table-${Environment}"
+      TableClass: STANDARD
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 3
+        WriteCapacityUnits: 3
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      Tags:
+        - Key: project
+          Value: !Ref ProjectName
 
+
+  # Cognito 
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    #TODO: Finish
+
+
+  # Functions
   HelloWorldFunction:
     Type: AWS::Serverless::Function 
     Properties:
