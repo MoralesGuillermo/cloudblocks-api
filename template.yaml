@@ -116,10 +116,30 @@ Resources:
           Value: !Ref ProjectName
 
 
-  # Cognito 
+  # User pools 
   UserPool:
     Type: AWS::Cognito::UserPool
-    #TODO: Finish
+    Properties:
+      UserPoolName: !Sub "${ProjectName}-user-pool-${Environment}"
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+
+  StudentPoolGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: !Sub "${ProjectName}-students-group-${Environment}"
+      UserPoolId: !Ref UserPool
+      Description: User group for students. Students have access to enroll & see courses they are enrolled in.
+
+  ProfessorPoolGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: !Sub "${ProjectName}-professors-group-${Environment}"
+      UserPoolId: !Ref UserPool
+      Description: User group for professors. Professors have access to create courses and manage their content.
+
 
 
   # Functions
