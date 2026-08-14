@@ -18,11 +18,12 @@ Resources:
   Database:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBInstanceIdentifier: !Sub "${ProjectName}-db-${Environment}"
+      DBName: !Sub "${ProjectName}-db-${Environment}"
       AllocatedStorage: 20
       DBInstanceClass: db.t3.micro
       Engine: mysql
-      # TODO: FINISH
+      MasterUsername: "{{resolve:ssm:/cloudblocks/db/master-username:1}}"
+      MasterUserPassword: "{{resolve:ssm-secure:/cloudblocks/db/master-password:1}}" 
       
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
