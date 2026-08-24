@@ -113,20 +113,20 @@ Resources:
       Description: User group for professors. Professors have access to create courses and manage their content.
 
   # Functions
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function 
+  GetUploadCourseSignedURL:
+    Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello_world/
-      Handler: app.lambda_handler
-      Runtime: python3.14
-      Architectures:
-      - x86_64
+      CodeUri: courses/
+      Handler: get_upload_signed_url.lambda_handler
+      Runtime: python.3.14
+      Architecture:
+        - x86_64
       Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        GetUploadCourseSignedURL:
+          Type: Api
           Properties:
-            Path: /hello
-            Method: get
+            Path: /course
+            Method: post
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
