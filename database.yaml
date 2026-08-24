@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 Description: >
   cloudblocks relational database
 
@@ -15,27 +16,28 @@ Parameters:
     Default: dev
 
 Resources:
-  Database:
-    Type: AWS::RDS::DBInstance
+# Tables
+  SingleTable:
+    Type: AWS::DynamoDB::Table
     Properties:
-      DBName: !Sub "${ProjectName}-db-${Environment}"
-      AllocatedStorage: 20
-      DBInstanceClass: db.t3.micro
-      Engine: mysql
-      MasterUsername: "{{resolve:ssm:/cloudblocks/db/master-username:1}}"
-      MasterUserPassword: "{{resolve:ssm-secure:/cloudblocks/db/master-password:1}}" 
+      TableName: !Sub "${ProjectName}-single-table-${Environment}"
+      TableClass: STANDARD
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      Tags:
+        - Key: project
+          Value: !Ref ProjectName
+
       
-Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: API Gateway endpoint URL for Prod stage for Hello World 
-      function
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/hello/"
-  HelloWorldFunction:
-    Description: Hello World Lambda Function ARN
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: Implicit IAM Role created for Hello World function
-    Value: !GetAtt HelloWorldFunctionRole.Arn
