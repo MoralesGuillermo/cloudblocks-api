@@ -121,6 +121,9 @@ Resources:
       Runtime: python.3.14
       Architecture:
         - x86_64
+      Environment:
+        Variables:
+          CONTENT_BUCKET: !Ref ContentBucket
       Events:
         GetUploadCourseSignedURL:
           Type: Api
