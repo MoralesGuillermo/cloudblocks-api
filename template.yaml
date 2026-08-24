@@ -61,32 +61,32 @@ Resources:
         - Key: project
           Value: !Ref ProjectName
 
-    # CDN
-    # OAC to grant S3 access to the Distro
-    ContentOAC:
-      Type: AWS::CloudFront::OriginAccessControl
-      Properties:
-        OriginAccessControlConfig:
-          Name: !Sub "${ProjectName}-content-oac"
-          Description: OAC to grant S3 access to CDN distros
-          OriginAccessControlOriginType: s3
-          SigningBehavior: always
-          SigningProtocol: sigv4
+  # CDN
+  # OAC to grant S3 access to the Distro
+  ContentOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${ProjectName}-content-oac"
+        Description: OAC to grant S3 access to CDN distros
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
 
-    # CDN to access the content bucket.
-    ContentDistribution:
-      Type: AWS::CloudFront::Distribution
-      Properties:
-        DistributionConfig:
-          Enabled: true
-          Origins:
-            - S3OriginConfig:
-                ConnectionAttempts: 3
-                S3OriginConfig: 
-                  OriginAccessIdentity: ""
-        Tags:
-          - Key: project
-            Value: !Ref ProjectName
+  # CDN to access the content bucket.
+  ContentDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Origins:
+          - S3OriginConfig:
+              ConnectionAttempts: 3
+              S3OriginConfig: 
+                OriginAccessIdentity: ""
+      Tags:
+        - Key: project
+          Value: !Ref ProjectName
 
   # User pools 
   UserPool:
@@ -148,8 +148,8 @@ Resources:
     Properties:
       CodeUri: courses/
       Handler: get_upload_signed_url.lambda_handler
-      Runtime: python.3.14
-      Architecture:
+      Runtime: python3.14
+      Architectures:
         - x86_64
       Environment:
         Variables:
@@ -161,11 +161,3 @@ Resources:
             RestApiId: !Ref API
             Path: /course
             Method: post
-
-Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  CloudBlocksApi:
-    Description: API Gateway endpoint URL for Prod stage of the Cloudblocks project 
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/hello/"
