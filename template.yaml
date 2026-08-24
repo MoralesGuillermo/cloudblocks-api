@@ -110,9 +110,13 @@ Resources:
         DefaultTTL: 86400
         MaxTTL: 31536000
         ParametersInCacheKeyAndForwardedToOrigin:
-          CookiesConfig: none
-          QueryStringsConfig: none
-          HeadersConfig: none
+          CookiesConfig: 
+            CookieBehavior: none
+          QueryStringsConfig: 
+            QueryBehavior: none
+          HeadersConfig: 
+            HeaderBehavior: none
+          EnableAcceptEncodingGzip: false
 
 
   # User pools 
