@@ -113,7 +113,7 @@ Resources:
           CookiesConfig: 
             CookieBehavior: none
           QueryStringsConfig: 
-            QueryBehavior: none
+            QueryStringBehavior: none
           HeadersConfig: 
             HeaderBehavior: none
           EnableAcceptEncodingGzip: false
