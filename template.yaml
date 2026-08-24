@@ -62,6 +62,33 @@ Resources:
           Value: !Ref ProjectName
 
   # CDN
+  # CDN to access the content bucket.
+  ContentDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultCacheBehavior:
+          ViewerProtocolPolicy: redirect-to-https
+          TargetOriginId: ContentBucketOrigin
+          CachePolicyId: !Ref DefaultCachePolicy
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachedMethods: 
+            - GET
+            - HEAD
+        Origins:
+          - Id: ContentBucketOrigin
+            DomainName: !GetAtt ContentBucket.DomainName
+            OriginAccessControlId: !Ref ContentOAC
+            S3OriginConfig:
+              OriginReadTimeout: 10
+              OriginAccessIdentity: ""
+      Tags:
+        - Key: project
+          Value: !Ref ProjectName
+
   # OAC to grant S3 access to the Distro
   ContentOAC:
     Type: AWS::CloudFront::OriginAccessControl
@@ -73,20 +100,20 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
-  # CDN to access the content bucket.
-  ContentDistribution:
-    Type: AWS::CloudFront::Distribution
+  DefaultCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
     Properties:
-      DistributionConfig:
-        Enabled: true
-        Origins:
-          - S3OriginConfig:
-              ConnectionAttempts: 3
-              S3OriginConfig: 
-                OriginAccessIdentity: ""
-      Tags:
-        - Key: project
-          Value: !Ref ProjectName
+      CachePolicyConfig:
+        Name: DefaultPolicy
+        Comment: Default cache policy of the Cloudblocks project S3 Content Distribution
+        MinTTL: 86400
+        DefaultTTL: 86400
+        MaxTTL: 31536000
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig: none
+          QueryStringsConfig: none
+          HeadersConfig: none
+
 
   # User pools 
   UserPool:
