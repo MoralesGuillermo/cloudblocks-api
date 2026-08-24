@@ -97,6 +97,22 @@ Resources:
         - email
       UsernameAttributes:
         - email
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: false
+          AttributeDataType: String
+        - Name: name
+          Required: true
+          Mutable: true
+          AttributeDataType: String
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientName: !Sub "${ProjectName}-user-pool-client-${Environment}"
+      GenerateSecret: false
 
   StudentPoolGroup:
     Type: AWS::Cognito::UserPoolGroup
@@ -111,6 +127,20 @@ Resources:
       GroupName: !Sub "${ProjectName}-professors-group-${Environment}"
       UserPoolId: !Ref UserPool
       Description: User group for professors. Professors have access to create courses and manage their content.
+
+
+  # API Gateway
+  API:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "cloudblocks.gmorales.me"
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn 
+
 
   # Functions
   GetUploadCourseSignedURL:
@@ -128,6 +158,7 @@ Resources:
         GetUploadCourseSignedURL:
           Type: Api
           Properties:
+            RestApiId: !Ref API
             Path: /course
             Method: post
 

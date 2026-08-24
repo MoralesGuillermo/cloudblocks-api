@@ -17,8 +17,11 @@ expiration = 900
 def lambda_handler(event, context):
     """
     Return an S3 pre-signed URL to upload a course file to an S3 bucket.
+    Function is thought to be used with cognito user pools for authentication
+    and id retrieval.
     """
     body = event["body"]
+    user_id = event["requestContext"]["authorizer"]["claims"]["cognito:username"]
     object_name = body["object_name"]
     # Meta-data
     fields = {
