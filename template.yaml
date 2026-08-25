@@ -184,7 +184,7 @@ Resources:
     Properties:
       FunctionName: !Sub GetUploadCourseSignedURL-${ProjectName}-${Environment}
       Description: Return to authenticated & authorized users a s3 pre-signed URL to upload their courses
-      CodeUri: courses/
+      CodeUri: getUploadUrl/
       Handler: get_upload_signed_url.lambda_handler
       Runtime: python3.14
       Architectures:
@@ -207,7 +207,7 @@ Resources:
     Properties:
       FunctionName: !Sub AddObjectMetadataDynamoDB-${ProjectName}-${Environment}
       Description: Automatically add s3 course's metadata to the DynamoDB Table
-      CodeUri: courses/
+      CodeUri: addMetadataDynamo/
       Handler: add_metadata_dynamo.lambda_handler
       Runtime: python3.14
       Architectures:
