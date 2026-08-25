@@ -165,7 +165,12 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Cors: "cloudblocks.gmorales.me"
+      Cors: 
+        AllowCredentials: true
+        AllowMethods: "'GET, POST, PUT, DELETE'"
+        AllowHeaders: "'content-type'"
+        AllowOrigin: "'cloudblocks.gmorales.me'"
+        MaxAge: "'3600'"
       Auth:
         DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
@@ -212,12 +217,15 @@ Resources:
           Type: S3
           Properties:
             Bucket: !Ref ContentBucket
-            Events: s3:PutObject
+            Events:
+              - s3:ObjectCreated:Put
+              - s3:ObjectCreated:Post
+              - s3:ObjectCreated:CompleteMultipartUpload
             Filter:
               S3Key:
                 Rules:
                   - Name: prefix
-                    Value: courses/*
+                    Value: courses/
       Tags:
         Project: !Ref ProjectName
            
