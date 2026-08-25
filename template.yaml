@@ -177,6 +177,8 @@ Resources:
   GetUploadCourseSignedURL:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub GetUploadCourseSignedURL-${ProjectName}-${Environment}
+      Description: Return to authenticated & authorized users a s3 pre-signed URL to upload their courses
       CodeUri: courses/
       Handler: get_upload_signed_url.lambda_handler
       Runtime: python3.14
@@ -192,3 +194,30 @@ Resources:
             RestApiId: !Ref API
             Path: /course
             Method: post
+      Tags:
+        Project: !Ref ProjectName
+
+  AddObjectMetadataDynamoDB:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub AddObjectMetadataDynamoDB-${ProjectName}-${Environment}
+      Description: Automatically add s3 course's metadata to the DynamoDB Table
+      CodeUri: courses/
+      Handler: add_metadata_dynamo.lambda_handler
+      Runtime: python3.14
+      Architectures:
+        - x86_64
+      Events:
+        AddObjectMetadataDynamoDB:
+          Type: S3
+          Properties:
+            Bucket: !Ref ContentBucket
+            Events: s3:PutObject
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: courses/*
+      Tags:
+        Project: !Ref ProjectName
+           
