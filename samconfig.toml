@@ -17,11 +17,12 @@ lint = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
-s3_prefix = "cloudblocks-api"
+s3_prefix = "cloudblocks-db"
 profile = "default"
 disable_rollback = true
 parameter_overrides = "ProjectName=\"cloudblocks\" Environment=\"dev\""
 image_repositories = []
+stack_name = "cloudblocks-db"
 
 [default.package.parameters]
 resolve_s3 = true

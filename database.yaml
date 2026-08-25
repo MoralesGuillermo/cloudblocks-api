@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  cloudblocks relational database
+  cloudblocks serverless DynamoDB database
 
 Parameters:
   # Project's name
@@ -16,8 +16,8 @@ Parameters:
     Default: dev
 
 Resources:
-# Tables
-  SingleTable:
+# Project Table
+  CloudblocksTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: !Sub "${ProjectName}-single-table-${Environment}"
@@ -39,5 +39,13 @@ Resources:
       Tags:
         - Key: project
           Value: !Ref ProjectName
+
+
+Outputs:
+  CloudblocksDynamo:
+    Description: Cloudblocks DynamoDB table ID
+    Value: !Ref CloudblocksTable
+    Export:
+      Name: CloudblocksTable
 
       
