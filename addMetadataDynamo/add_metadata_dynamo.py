@@ -1,9 +1,9 @@
-import json
 import logging
 import boto3
 import os
 import uuid
-import datetime
+from datetime import datetime
+
 
 s3 = boto3.client("s3")
 dynamo = boto3.client("dynamodb", region_name="us-east-1")
@@ -47,7 +47,7 @@ def lambda_handler(event, context):
     # Ownsership relationship. Professor owns course
     ownership = {
         "PK": {"S": course_id},
-        "SK": {"S": metadata["professor"]}
+        "SK": {"S": f"PROFESSOR#{metadata["professor"]}"}
     }
 
     try:
@@ -67,8 +67,7 @@ def lambda_handler(event, context):
                 }   
             ]
         )
-
-        
+        logger.info(f"Object {bucket + "/" + object_key} metadata successfully stored to DynamoDB. PK: {course_id}")      
     except Exception as e:
         logger.exception("Object's metadata couldn't be saved to DynamoDB. Trace:")
 
