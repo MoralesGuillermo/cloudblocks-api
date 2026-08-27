@@ -232,6 +232,12 @@ Resources:
       Runtime: python3.14
       Architectures:
         - x86_64
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Sub "${ProjectName}-content-bucket-${Environment}"
+      Environment:
+        Variables:
+          DYNAMO_TABLE: !Fn::ImportValue CloudblocksTable
       Events:
         AddObjectMetadataDynamoDB:
           Type: S3
