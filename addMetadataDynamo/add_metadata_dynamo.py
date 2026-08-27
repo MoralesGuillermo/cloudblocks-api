@@ -1,10 +1,14 @@
 import json
 import logging
 import boto3
-
+import os
+import uuid
+import datetime
 
 s3 = boto3.client("s3")
-dynamo = boto3.client("dynamodb")
+dynamo = boto3.client("dynamodb", region_name="us-east-1")
+
+table_name = os.getenv("DYNAMO_TABLE")
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
@@ -29,4 +33,43 @@ def lambda_handler(event, context):
         logger.exception("Object metadata couldn't be retrieved. Trace:")
         raise 
 
-    # TODO: Add the object's metadata to DynamoDB
+    course_id = f"COURSE#{uuid.uuid4()}"
+    # Course object
+    course = {
+        "PK": {"S": course_id},
+        "SK": {"S": "METADATA"},
+        "title": {"S": metadata["title"]},
+        "file_size": {"N": str(object_size)},
+        "file_url": {"S": bucket + "/" + object_key},
+        "created_at": {"S": datetime.now()}
+    }
+
+    # Ownsership relationship. Professor owns course
+    ownership = {
+        "PK": {"S": course_id},
+        "SK": {"S": metadata["professor"]}
+    }
+
+    try:
+        dynamo.transact_write_items(
+            TransactItems=[
+                {
+                    "Put": {
+                        "TableName": table_name,
+                        "Item": course
+                    } 
+                },
+                {
+                    "Put": {
+                        "TableName": table_name,
+                        "Item": ownership
+                    }
+                }   
+            ]
+        )
+
+        
+    except Exception as e:
+        logger.exception("Object's metadata couldn't be saved to DynamoDB. Trace:")
+
+
