@@ -52,8 +52,14 @@ def lambda_handler(event, context):
                 }   
             ]
         )
-        logger.info(f"Student with id {student_id} was successfully enrolled to course {course_id}")      
+        logger.info(f"Student with id {student_id} was successfully enrolled to course {course_id}")
+        return {
+            "statusCode": 200
+        },
     except Exception as e:
         logger.exception("Student's enrollment couldn't be saved to DynamoDB.")
-
+        return {
+            "statusCode": 500,
+            "message": "Student couldn't be enrolled to course"
+        }
 
