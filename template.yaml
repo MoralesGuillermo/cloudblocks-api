@@ -255,4 +255,27 @@ Resources:
       Tags:
         Project: !Ref ProjectName
 
+  EnrollStudentToCourse:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub EnrollStudentToCourse-${ProjectName}-${Environment}
+      Description: Enroll a student to a course
+      CodeUri: enrollToCourse/
+      Handler: enroll_course.lambda_handler
+      Runtime: python3.14
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          DYNAMO_TABLE: !Fn::ImportValue CloudblocksTable
+      Events:
+        GetUploadCourseSignedURL:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /course/enroll
+            Method: post
+      Tags:
+        Project: !Ref ProjectName
+
            
