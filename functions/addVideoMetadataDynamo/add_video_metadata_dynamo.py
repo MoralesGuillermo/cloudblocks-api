@@ -1,9 +1,9 @@
 import logging
-import boto3
 import os
 import uuid
 from datetime import datetime
 
+import boto3
 
 s3 = boto3.client("s3")
 dynamo = boto3.client("dynamodb", region_name="us-east-1")
@@ -13,6 +13,7 @@ table_name = os.getenv("DYNAMO_TABLE")
 logger = logging.getLogger()
 logger.setLevel("INFO")
 
+# TODO: Add validations for metadata fields.
 def lambda_handler(event, context):
     """
     Add uploaded courses metadata to DynamoDB
@@ -30,13 +31,13 @@ def lambda_handler(event, context):
         )
         metadata = object_head["Metadata"]
     except Exception as e:
-        logger.exception("Object metadata couldn't be retrieved. Trace:")
+        logger.exception("Video's metadata couldn't be retrieved. Trace:")
         raise 
 
-    course_id = f"COURSE#{uuid.uuid4()}"
-    # Course object
-    course = {
-        "PK": {"S": course_id},
+    video_id = str(uuid.uuid4())
+    # Video's metadata object. Stores video information.
+    video = {
+        "PK": {"S": f"VIDEO#{video_id}"},
         "SK": {"S": "METADATA"},
         "title": {"S": metadata["title"]},
         "file_size": {"N": str(object_size)},
@@ -44,10 +45,18 @@ def lambda_handler(event, context):
         "created_at": {"S": datetime.now()}
     }
 
-    # Ownsership relationship. Professor owns course
+    # Ownsership relationship. Course owns the video.
+    # Purpose is to enable querying all videos that belong to a course
     ownership = {
-        "PK": {"S": course_id},
-        "SK": {"S": f"PROFESSOR#{metadata["professor"]}"}
+        "PK": {"S": f"COURSE#{metadata['course_id']}"},
+        "SK": {"S": f"VIDEO#{video_id}"},
+    }
+
+    # Master relationship. Which course the video belongs to.
+    # Purpose is to enable querying to which course the video belongs to.
+    master = {
+        "PK": {"S": f"VIDEO#{video_id}"},
+        "SK": {"S": f"COURSE#{metadata['course_id']}"},
     }
 
     try:
@@ -56,7 +65,7 @@ def lambda_handler(event, context):
                 {
                     "Put": {
                         "TableName": table_name,
-                        "Item": course
+                        "Item": video
                     } 
                 },
                 {
@@ -64,11 +73,17 @@ def lambda_handler(event, context):
                         "TableName": table_name,
                         "Item": ownership
                     }
-                }   
+                },
+                {
+                    "Put": {
+                        "TableName": table_name,
+                        "Item": master
+                    }
+                }
             ]
         )
-        logger.info(f"Object {bucket + "/" + object_key} metadata successfully stored to DynamoDB. PK: {course_id}")      
+        logger.info(f"Video {bucket + "/" + object_key} metadata successfully stored to DynamoDB. Video ID: {video_id}")      
     except Exception as e:
-        logger.exception("Object's metadata couldn't be saved to DynamoDB. Trace:")
+        logger.exception("Videos's metadata couldn't be saved to DynamoDB. Video ID: %s Trace:", video_id)
 
 

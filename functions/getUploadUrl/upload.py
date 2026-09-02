@@ -31,7 +31,8 @@ def lambda_handler(event, context):
     conditions = [
         ["content-length-range", MIN_VIDEO_SIZE, MAX_VIDEO_SIZE],
         {'x-amz-meta-uploaded-by': user_id},
-        {'x-amz-meta-object-name': object_name}
+        {'x-amz-meta-object-name': object_name},
+        {"x-amz-meta-course-id": body["course_id"]},
     ]
     
     try:

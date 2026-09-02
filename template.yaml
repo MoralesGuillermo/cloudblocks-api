@@ -246,8 +246,8 @@ Resources:
     Properties:
       FunctionName: !Sub AddObjectMetadataDynamoDB-${ProjectName}-${Environment}
       Description: Automatically add s3 course's metadata to the DynamoDB Table
-      CodeUri: functions/addMetadataDynamo/
-      Handler: add_metadata_dynamo.lambda_handler
+      CodeUri: functions/addVideoMetadataDynamo/
+      Handler: add_video_metadata_dynamo.lambda_handler
       Runtime: python3.14
       Architectures:
         - x86_64
