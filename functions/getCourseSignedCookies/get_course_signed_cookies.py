@@ -24,7 +24,8 @@ def lambda_handler(event, context):
                 "error": "User is not enrolled in the course. Access denied."
             }),
         }
-    #TODO: Generate the pre-signed Cloudfront cookies
+    #TODO: Generate the pre-signed Cloudfront cookies. Use SSM secure strings to store the RSA private key.
+    #PLAN: Give access to the full course directory to the user.
 
 #TODO: Add logging for cases
 def user_enrolled_in_course(user_id: str, video_id: str) -> bool:
