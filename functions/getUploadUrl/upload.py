@@ -14,6 +14,7 @@ MAX_VIDEO_SIZE = 1 * 1024 * 1024 * 1024
 BUCKET =os.getenv("CONTENT_BUCKET")  
 expiration = 900
 
+#TODO: Define all metadata required for the upload.
 def lambda_handler(event, context):
     """
     Return an S3 pre-signed URL to upload a course file to an S3 bucket.
