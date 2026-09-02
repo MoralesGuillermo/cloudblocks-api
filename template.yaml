@@ -298,3 +298,25 @@ Resources:
             Method: post
       Tags:
         Project: !Ref ProjectName
+
+  getCourseSignedCookies:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub getCourseSignedCookies-${ProjectName}-${Environment}
+      Description: Return signed cookies to authenticated & authorized users to access a course's content through the CDN
+      CodeUri: functions/getCourseSignedCookies/
+      Handler: get_course_signed_cookies.lambda_handler
+      Runtime: python3.14
+      Architectures:
+        - x86_64
+      Environment:
+        DYNAMO_TABLE: !Fn::ImportValue CloudblocksTable
+      Events:
+        getCourseSignedCookies:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /course/content
+            Method: get
+      Tags:
+        Project: !Ref ProjectName
