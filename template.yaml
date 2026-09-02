@@ -145,13 +145,6 @@ Resources:
       UserPoolId: !Ref UserPool
       Description: User group for students. Students have access to enroll & see courses they are enrolled in.
 
-  ProfessorPoolGroup:
-    Type: AWS::Cognito::UserPoolGroup
-    Properties:
-      GroupName: !Sub "${ProjectName}-professors-group-${Environment}"
-      UserPoolId: !Ref UserPool
-      Description: User group for professors. Professors have access to create courses and manage their content.
-
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
@@ -269,7 +262,7 @@ Resources:
         Variables:
           DYNAMO_TABLE: !Fn::ImportValue CloudblocksTable
       Events:
-        GetUploadCourseSignedURL:
+        EnrollStudentToCourse:
           Type: Api
           Properties:
             RestApiId: !Ref API
@@ -277,5 +270,3 @@ Resources:
             Method: post
       Tags:
         Project: !Ref ProjectName
-
-           
