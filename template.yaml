@@ -197,7 +197,7 @@ Resources:
     Properties:
       FunctionName: !Sub GetUploadCourseSignedURL-${ProjectName}-${Environment}
       Description: Return to authenticated & authorized users a s3 pre-signed URL to upload their courses
-      CodeUri: getUploadUrl/
+      CodeUri: functions/getUploadUrl/
       Handler: get_upload_signed_url.lambda_handler
       Runtime: python3.14
       Architectures:
@@ -210,6 +210,32 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref API
+            Path: /course/video
+            Method: post
+      Tags:
+        Project: !Ref ProjectName
+
+  CreateCourse:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub CreateCourse-${ProjectName}-${Environment}
+      Description: Create a new course record in DynamoDB
+      CodeUri: functions/createCourse/
+      Handler: create_course.lambda_handler
+      Runtime: python3.14
+      Architectures:
+        - x86_64
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Fn::ImportValue CloudblocksTable
+      Environment:
+        Variables:
+          DYNAMO_TABLE: !Fn::ImportValue CloudblocksTable
+      Events:
+        CreateCourse:
+          Type: API
+          Properties:
+            RestApiId: !Ref API
             Path: /course
             Method: post
       Tags:
@@ -220,7 +246,7 @@ Resources:
     Properties:
       FunctionName: !Sub AddObjectMetadataDynamoDB-${ProjectName}-${Environment}
       Description: Automatically add s3 course's metadata to the DynamoDB Table
-      CodeUri: addMetadataDynamo/
+      CodeUri: functions/addMetadataDynamo/
       Handler: add_metadata_dynamo.lambda_handler
       Runtime: python3.14
       Architectures:
@@ -228,6 +254,8 @@ Resources:
       Policies:
         - S3ReadPolicy:
             BucketName: !Sub "${ProjectName}-content-bucket-${Environment}"
+        - DynamoDBCrudPolicy:
+            TableName: !Fn::ImportValue CloudblocksTable
       Environment:
         Variables:
           DYNAMO_TABLE: !Fn::ImportValue CloudblocksTable
@@ -253,7 +281,7 @@ Resources:
     Properties:
       FunctionName: !Sub EnrollStudentToCourse-${ProjectName}-${Environment}
       Description: Enroll a student to a course
-      CodeUri: enrollToCourse/
+      CodeUri: functions/enrollToCourse/
       Handler: enroll_course.lambda_handler
       Runtime: python3.14
       Architectures:
